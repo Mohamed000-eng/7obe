@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إلى رحمة - عيد فطر سعيد</title>
+    <title>عيد مبارك يا رحمة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --dark-red: #8b0000;
@@ -17,67 +19,95 @@
             width: 100%; height: 100%;
             background-color: black;
             overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
         }
 
-        #stage1 { position: relative; width: 100%; height: 100%; }
+        /* شاشة البداية */
+        #start-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 100;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; color: var(--light-pink);
+        }
+        #start-btn {
+            font-size: 80px; cursor: pointer; animation: pulse 1.5s infinite;
+            background: none; border: none; outline: none;
+        }
+
+        #stage1 { position: relative; width: 100%; height: 100%; display: none; }
         canvas { display: block; }
 
-        /* تنسيق العد التنازلي والجمل الإنجليزية - نفس اللون والمركز */
         .overlay-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--light-pink);
-            font-weight: bold;
-            text-align: center;
-            z-index: 10;
-            pointer-events: none;
-            text-shadow: 0 0 20px rgba(255, 182, 193, 0.8);
-        }
-
-        #countdown { font-size: 150px; display: none; }
-        
-        #eng-messages { 
-            font-size: clamp(30px, 8vw, 55px); 
-            width: 90%; 
-            display: none;
-            opacity: 0;
-            transition: opacity 0.8s ease;
-        }
-
-        /* المرحلة الثالثة (المستطيل والرسائل العربية) */
-        #stage3 {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #111 0%, #000 100%);
-            display: none;
-            z-index: 30;
-        }
-
-        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 2s infinite; }
-        
-        #white-box {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 85%; height: 55%;
-            background: white; border-radius: 20px;
-            display: flex; justify-content: center; align-items: center;
-            text-align: center; padding: 20px; box-sizing: border-box;
+            color: var(--light-pink); font-weight: 700;
+            text-align: center; z-index: 10; pointer-events: none;
+            text-shadow: 0 0 25px rgba(255, 182, 193, 0.9);
+            direction: ltr;
         }
 
-        #emoji-corner { position: absolute; top: 15px; left: 15px; font-size: 35px; }
-        #arabic-messages { color: var(--dark-red); font-size: 24px; font-weight: bold; }
+        #countdown { font-size: 160px; display: none; }
+        #eng-messages { font-size: clamp(28px, 7vw, 50px); width: 85%; display: none; opacity: 0; }
 
-        .rising-heart { position: absolute; bottom: -50px; font-size: 25px; animation: rise 4s linear forwards; }
+        /* المرحلة الثالثة: النجوم والمستطيل */
+        #stage3 {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: black; /* خلفية سوداء للنجوم */
+            display: none; z-index: 30;
+        }
 
+        /* النجوم */
+        .star {
+            position: absolute; background: white; border-radius: 50%;
+            opacity: 0.8; animation: twinkle 2s infinite; z-index: 31;
+        }
+
+        /* الوايت بوكس بالأنيميشن اللي طلبته */
+        #white-box {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.7); 
+            width: 85%; height: 55%;
+            background: rgba(255, 255, 255, 0.98); 
+            border-radius: 25px;
+            display: flex; justify-content: center; align-items: center;
+            text-align: center; padding: 30px; box-sizing: border-box;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            transition: all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 35; /* فوق النجوم */
+        }
+
+        #white-box.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #emoji-corner { position: absolute; top: 20px; left: 20px; font-size: 35px; }
+        #arabic-messages { color: var(--dark-red); font-size: 24px; font-weight: 700; line-height: 1.6; }
+
+        /* القلوب المتنوعة */
+        .rising-heart {
+            position: absolute; bottom: -50px; font-size: 25px;
+            animation: rise 5s linear forwards; z-index: 40;
+        }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        @keyframes rise { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
+        @keyframes rise { 
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; } 
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; } 
+        }
     </style>
 </head>
 <body>
+
+    <div id="start-screen">
+        <button id="start-btn">❤️</button>
+        <p style="font-family: 'Cairo'; margin-top: 20px;">اضغط هنا يا رحمة</p>
+    </div>
+
+    <audio id="bg-music" src="song.mp3"></audio>
 
     <div id="stage1">
         <canvas id="matrix"></canvas>
@@ -98,36 +128,45 @@
         const ctx = canvas.getContext('2d');
         const countdownEl = document.getElementById('countdown');
         const engMsgEl = document.getElementById('eng-messages');
+        const music = document.getElementById('bg-music');
+
+        document.getElementById('start-btn').onclick = function() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('stage1').style.display = 'block';
+            music.play();
+            drawMatrix();
+        };
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         const chars = "LOVE";
-        const colors = ['#8b0000', '#ff0000', '#ff69b4', '#ffb6c1'];
+        const colors = ['#4a0000', '#8b0000', '#ff0000', '#ff69b4', '#ffb6c1'];
         const fontSize = 22;
         const columns = canvas.width / fontSize;
         const drops = Array(Math.floor(columns)).fill(0);
         
         let matrixActive = true;
-        let countdownTriggered = false;
+        let sequenceTriggered = false;
 
         function drawMatrix() {
             if(!matrixActive) return;
-            ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             for (let i = 0; i < drops.length; i++) {
                 const text = chars[Math.floor(Math.random() * chars.length)];
                 ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
-                ctx.font = fontSize + "px Arial";
+                ctx.font = `700 ${fontSize}px Tajawal`;
                 
-                if (Math.random() > 0.95 || drops[i] > 0) {
+                if (Math.random() > 0.96 || drops[i] > 0) {
                     ctx.fillText(text, i * fontSize, drops[i] * fontSize);
                     drops[i]++;
                 }
 
-                if (drops[i] * fontSize > canvas.height / 2 && !countdownTriggered) {
-                    startSequence();
+                if (drops[i] * fontSize > canvas.height / 2 && !sequenceTriggered) {
+                    sequenceTriggered = true;
+                    setTimeout(startSequence, 500);
                 }
 
                 if (drops[i] * fontSize > canvas.height) {
@@ -138,28 +177,21 @@
         }
 
         function startSequence() {
-            countdownTriggered = true;
             countdownEl.style.display = 'block';
             let count = 3;
-            
             const timer = setInterval(() => {
                 count--;
-                if (count > 0) {
-                    countdownEl.innerText = count;
-                } else {
+                if (count > 0) countdownEl.innerText = count;
+                else {
                     clearInterval(timer);
                     countdownEl.style.display = 'none';
                     showEnglishPhrases();
                 }
-            }, 1000);
+            }, 1200);
         }
 
         function showEnglishPhrases() {
-            const phrases = [
-                "Happy", 
-                "Eid Al-Fitr", 
-                "may you always be with me, Roro"
-            ];
+            const phrases = ["Happy", "Eid Al-Fitr", "may you always be with me, Roro"];
             let i = 0;
             engMsgEl.style.display = 'block';
 
@@ -167,17 +199,12 @@
                 if (i < phrases.length) {
                     engMsgEl.innerText = phrases[i];
                     engMsgEl.style.opacity = 1;
-                    
                     setTimeout(() => {
                         engMsgEl.style.opacity = 0;
-                        setTimeout(() => {
-                            i++;
-                            next();
-                        }, 800);
-                    }, 2500);
+                        setTimeout(() => { i++; next(); }, 900);
+                    }, 2800);
                 } else {
-                    // بعد انتهاء الإنجليزية، ننتقل للمرحلة الثالثة
-                    setTimeout(transitionToStage3, 1000);
+                    setTimeout(transitionToStage3, 800);
                 }
             }
             next();
@@ -187,32 +214,42 @@
             matrixActive = false;
             document.getElementById('stage1').style.display = 'none';
             document.getElementById('stage3').style.display = 'block';
-            createStars();
-            startRisingHearts();
-            showArabicMessages();
+            
+            createStars(); // توليد النجوم فوراً
+            
+            setTimeout(() => {
+                document.getElementById('white-box').classList.add('show');
+                startRisingHearts();
+                showArabicMessages();
+            }, 500);
         }
 
-        // --- دوام المرحلة الثالثة (النجوم، القلوب، الرسائل العربية) ---
         function createStars() {
             const container = document.getElementById('stars-container');
-            for(let i=0; i<120; i++) {
+            container.innerHTML = ''; // تنظيف الحاوية
+            for(let i=0; i<150; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                star.style.width = star.style.height = Math.random() * 2 + 'px';
+                star.style.width = star.style.height = Math.random() * 2.5 + 'px';
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
                 container.appendChild(star);
             }
         }
 
         function startRisingHearts() {
+            const heartsArr = ['💖','💞','❤️','💘','✨'];
             setInterval(() => {
-                const heart = document.createElement('div');
-                heart.className = 'rising-heart';
-                heart.innerHTML = '💖';
-                heart.style.left = Math.random() * 100 + '%';
-                document.getElementById('stage3').appendChild(heart);
-                setTimeout(() => heart.remove(), 4000);
+                if (document.getElementById('stage3').style.display !== 'none') {
+                    const heart = document.createElement('div');
+                    heart.className = 'rising-heart';
+                    heart.innerHTML = heartsArr[Math.floor(Math.random() * heartsArr.length)];
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                    document.getElementById('stage3').appendChild(heart);
+                    setTimeout(() => heart.remove(), 5000);
+                }
             }, 600);
         }
 
@@ -222,7 +259,7 @@
                 "كل عيد فطر وإنتي دايمًا بخير وسعادة وراحة بال",
                 "وجودك في حياتي هو العيد الحقيقي بالنسبالي",
                 "بتمنى من ربنا إننا نفضل مع بعض كل عيد وسنين كتير جاية",
-                "ضحكتك في العيد بتخلي الدنيا كلها ألوان",
+                "ضحكتك في العيد بتخلي الدنيا كلها بهجه وسعادة",
                 "كل سنة وإنتي أقرب حد لقلبي وأجمل حاجة حصلتلي",
                 "العيد بيبقى له طعم تاني خالص لما بكون معاكي",
                 "كل لحظة في العيد وإنتي فيها بتبقى ذكرى حلوة في قلبي",
@@ -238,17 +275,16 @@
                     container.style.opacity = 0;
                     setTimeout(() => {
                         container.innerText = msgs[i];
-                        container.style.transition = "opacity 1s";
+                        container.style.transition = "opacity 1.2s ease-in-out";
                         container.style.opacity = 1;
                         i++;
-                        setTimeout(nextMsg, 4000);
-                    }, 1000);
+                        setTimeout(nextMsg, 4500);
+                    }, 1200);
                 }
             }
             nextMsg();
         }
-
-        drawMatrix();
     </script>
 </body>
 </html>
+
